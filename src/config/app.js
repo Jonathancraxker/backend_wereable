@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 // Configuración CORS para múltiples orígenes
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:49718'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:51231'];
 
 app.use(
   cors({

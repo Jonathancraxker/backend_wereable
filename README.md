@@ -42,9 +42,3 @@ npm install
 ```bash
 npm run dev
 ```
-
-## 4. Ejecución en el Emulador
-Una vez iniciado en android studio el emulador, lanza la aplicación directamente en el dispositivo wearable utilizando su ID correspondiente, por ejemplo:
-```bash
-flutter run -d emulator-5554
-```

@@ -1,9 +1,10 @@
 import { pool } from '../config/db.js';
+import { indexarNoticia } from '../services/elasticService.js';
 
 // Obtener todas las noticias
 export const getAllNoticias = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM noticias ORDER BY fecha_publicacion DESC');
+        const [rows] = await pool.query('SELECT * FROM noticias ORDER BY id DESC');
         res.json(rows);
     } catch (error) {
         console.error(error);
@@ -26,13 +27,23 @@ export const getNoticiaById = async (req, res) => {
 
 // Crear una nueva noticia
 export const createNoticia = async (req, res) => {
-    const { titulo, contenido, categoria, destacada } = req.body;
+    const { titulo, contenido, categoria, destacada, imagen } = req.body;
     try {
         const [result] = await pool.query(
-            'INSERT INTO noticias (titulo, contenido, categoria, destacada) VALUES (?, ?, ?, ?)',
-            [titulo, contenido, categoria, destacada || false]
+            'INSERT INTO noticias (titulo, contenido, categoria, destacada, imagen) VALUES (?, ?, ?, ?, ?)',
+            [titulo, contenido, categoria, destacada || false, imagen]
         );
-        res.status(201).json({ id: result.insertId, titulo, contenido, categoria, destacada });
+        // Indexar la noticia en Elasticsearch
+        const nuevaNoticia = {
+            id: result.insertId,
+            titulo,
+            contenido,
+            categoria,
+            destacada: destacada || false,
+            imagen
+        };
+        await indexarNoticia(nuevaNoticia);
+        res.status(201).json({ message: 'Noticia creada correctamente', id: result.insertId });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error al crear la noticia' });
@@ -42,12 +53,22 @@ export const createNoticia = async (req, res) => {
 // Actualizar una noticia existente
 export const updateNoticia = async (req, res) => {
     const { id } = req.params;
-    const { titulo, contenido, categoria, destacada } = req.body;
+    const { titulo, contenido, categoria, destacada, imagen } = req.body;
     try {
         const [result] = await pool.query(
-            'UPDATE noticias SET titulo = ?, contenido = ?, categoria = ?, destacada = ? WHERE id = ?',
-            [titulo, contenido, categoria, destacada, id]
+            'UPDATE noticias SET titulo = ?, contenido = ?, categoria = ?, destacada = ?, imagen = ? WHERE id = ?',
+            [titulo, contenido, categoria, destacada, imagen, id]
         );
+        // Indexar la noticia actualizada en Elasticsearch
+        const noticiaActualizada = {
+            id,
+            titulo,
+            contenido,
+            categoria,
+            destacada,
+            imagen
+        };
+        await indexarNoticia(noticiaActualizada);
         if (result.affectedRows === 0) return res.status(404).json({ message: 'Noticia no encontrada' });
         res.json({ message: 'Noticia actualizada correctamente' });
     } catch (error) {

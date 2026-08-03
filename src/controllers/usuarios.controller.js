@@ -32,17 +32,24 @@ export const loginUsuario = async (req, res) => {
         if (!user) {
             return res.status(400).json(["Error, usuario no existente"]);
         }
+        // Verificar si el usuario está activo
+        if (user.activo !== 1 && user.activo !== true) {
+            return res.status(403).json(["Tu cuenta se encuentra deshabilitada. Contacta al administrador."]);
+        }
+        // Verificar el PIN
         const pinValido = await bcrypt.compare(pin, user.pin_encriptado);
         if (!pinValido) {
             return res.status(400).json(["El PIN ingresado es incorrecto"]);
         }
-        const token = await accesoToken({ id: user.id });
+        const token = await accesoToken({ id: user.id, tipo: user.tipo });
 
         res.json({
             user: {
                 id: user.id,
                 nombre: user.nombre,
-                email: user.email
+                email: user.email,
+                tipo: user.tipo,
+                activo: user.activo
             },
             token
         });

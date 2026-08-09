@@ -2,13 +2,13 @@ import { pool } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 
 // Crear usuario con PIN encriptado
-export async function createUsuarios({ nombre, email, pin }) {
+export async function createUsuarios({ nombre, email, pin, tipo }) {
     const connection = await pool.getConnection();
     try {
         const pinHash = await bcrypt.hash(pin, 10);
         const [result] = await connection.execute(
-            `INSERT INTO usuarios (nombre, email, pin_encriptado) VALUES (?, ?, ?)`,
-            [nombre, email, pinHash]
+            `INSERT INTO usuarios (nombre, email, pin_encriptado, tipo) VALUES (?, ?, ?, ?)`,
+            [nombre, email, pinHash, tipo]
         );
         return result.insertId;
     } finally {

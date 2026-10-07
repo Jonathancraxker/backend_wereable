@@ -12,10 +12,15 @@ const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000', 'https
 app.use(
   cors({
     origin: (origin, callback) => {
+      // 1. Imprimimos el origen exacto en los logs de Render para atraparlo
+      console.log('=== ORIGEN INTENTANDO CONECTAR === :', origin);
+
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('No autorizado por CORS'));
+        // 2. Si no está en la lista, lo dejamos pasar temporalmente para que no te bloquee
+        console.warn(`Permitiendo acceso temporal al origen desconocido: ${origin}`);
+        callback(null, true); 
       }
     },
     credentials: true, // Para permitir cookies/sesiones

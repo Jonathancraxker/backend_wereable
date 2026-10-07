@@ -7,20 +7,15 @@ const app = express();
 app.use(express.json());
 
 // Configuración CORS para múltiples orígenes
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000', 'https://doriga-news.vercel.app', 'http://localhost', 'capacitor://localhost'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000', 'https://doriga-news.vercel.app', 'https://localhost', 'capacitor://localhost', 'ionic://localhost'];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // 1. Imprimimos el origen exacto en los logs de Render para atraparlo
-      console.log('=== ORIGEN INTENTANDO CONECTAR === :', origin);
-
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        // 2. Si no está en la lista, lo dejamos pasar temporalmente para que no te bloquee
-        console.warn(`Permitiendo acceso temporal al origen desconocido: ${origin}`);
-        callback(null, true); 
+        callback(new Error('No autorizado por CORS'));
       }
     },
     credentials: true, // Para permitir cookies/sesiones

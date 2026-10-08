@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 // Configuración CORS para múltiples orígenes
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000', 'https://doriga-news.vercel.app', 'https://localhost', 'capacitor://localhost', 'ionic://localhost'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000', 'https://doriga-news.vercel.app', 'https://localhost'];
 
 app.use(
   cors({

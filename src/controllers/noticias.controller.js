@@ -1,10 +1,15 @@
 import { pool } from '../config/db.js';
 import { indexarNoticia } from '../services/elasticService.js';
 
-// Obtener todas las noticias
+// Obtener todas las noticias (HACEMOS JOIN PARA TRAER EL NOMBRE DEL AUTOR)
 export const getAllNoticias = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM noticias ORDER BY id DESC');
+        const [rows] = await pool.query(`
+            SELECT n.*, u.nombre AS nombre_autor 
+            FROM noticias n 
+            LEFT JOIN usuarios u ON n.autor_id = u.id 
+            ORDER BY n.id DESC
+        `);
         res.json(rows);
     } catch (error) {
         console.error(error);
@@ -16,7 +21,13 @@ export const getAllNoticias = async (req, res) => {
 export const getNoticiaById = async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await pool.query('SELECT * FROM noticias WHERE id = ?', [id]);
+        const [rows] = await pool.query(`
+            SELECT n.*, u.nombre AS nombre_autor 
+            FROM noticias n 
+            LEFT JOIN usuarios u ON n.autor_id = u.id 
+            WHERE n.id = ?
+        `, [id]);
+        
         if (rows.length === 0) return res.status(404).json({ message: 'Noticia no encontrada' });
         res.json(rows[0]);
     } catch (error) {
@@ -25,13 +36,13 @@ export const getNoticiaById = async (req, res) => {
     }
 };
 
-// Crear una nueva noticia
+// Crear una nueva noticia (GUARDAMOS EL AUTOR_ID)
 export const createNoticia = async (req, res) => {
-    const { titulo, contenido, categoria, destacada, imagen } = req.body;
+    const { titulo, contenido, categoria, destacada, imagen, autor_id } = req.body;
     try {
         const [result] = await pool.query(
-            'INSERT INTO noticias (titulo, contenido, categoria, destacada, imagen) VALUES (?, ?, ?, ?, ?)',
-            [titulo, contenido, categoria, destacada || false, imagen]
+            'INSERT INTO noticias (titulo, contenido, categoria, destacada, imagen, autor_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [titulo, contenido, categoria, destacada || false, imagen, autor_id || null]
         );
         // Indexar la noticia en Elasticsearch
         const nuevaNoticia = {
@@ -40,7 +51,8 @@ export const createNoticia = async (req, res) => {
             contenido,
             categoria,
             destacada: destacada || false,
-            imagen
+            imagen,
+            autor_id
         };
         await indexarNoticia(nuevaNoticia);
         res.status(201).json({ message: 'Noticia creada correctamente', id: result.insertId });

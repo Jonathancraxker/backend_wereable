@@ -4,7 +4,8 @@ import cors from 'cors';
 import adminRoutes from '../routes/admin.routes.js';
 
 const app = express();
-app.use(express.json());
+app.use(express.json({limit: '50mb'})); // Aumentar el límite de tamaño de la solicitud para manejar imágenes grandes
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Aumentar el límite de tamaño de la solicitud para manejar imágenes grandes
 
 // Configuración CORS para múltiples orígenes
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000', 'https://doriga-news.vercel.app', 'https://localhost'];

@@ -9,6 +9,7 @@ import { updatePinSchema } from "../schemas/usuarios.schemas.js";
 import { getAllNoticias, getNoticiaById, createNoticia, updateNoticia, deleteNoticia } from "../controllers/noticias.controller.js";
 import { getUsuarios, createUsuario, updateUsuario, updateUsuarioActivo, deleteUsuario } from "../controllers/crud_usuarios.controller.js";
 import { buscarNoticiasElastic } from "../services/elasticService.js";
+import { createReporteSoporte, getMisReportes, getReportesAdmin, responderReporte } from "../controllers/soporte.controller.js";
 
 const router = Router();
 
@@ -35,6 +36,12 @@ router.post('/noticias/crear', createNoticia);
 router.put('/noticias/update/:id', updateNoticia);
 router.delete('/noticias/delete/:id', deleteNoticia);
 
+// Soporte / Chat
+router.post('/soporte', authToken, createReporteSoporte); // El usuario envía reporte
+router.get('/soporte/mis-reportes/:usuario_id', authToken, getMisReportes); // El usuario ve su chat
+router.get('/soporte/admin/pendientes', authToken, getReportesAdmin); // Admin ve todos los reportes
+router.patch('/soporte/admin/responder/:id', authToken, responderReporte); // Admin responde un reporte
+
 // Endpoint para el autocompletado en el Header
 router.get('/noticias/buscar/search', async (req, res) => {
   try {
@@ -48,5 +55,7 @@ router.get('/noticias/buscar/search', async (req, res) => {
     res.status(500).json({ error: 'Error procesando la búsqueda' });
   }
 });
+
+
 
 export default router;

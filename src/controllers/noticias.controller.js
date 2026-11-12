@@ -3,15 +3,23 @@ import { indexarNoticia } from '../services/elasticService.js';
 import fs from 'fs';
 import path from 'path';
 
-// Obtener todas las noticias (HACEMOS JOIN PARA TRAER EL NOMBRE DEL AUTOR)
 export const getAllNoticias = async (req, res) => {
     try {
+        // 1. Recibir parámetros de la petición o poner valores por defecto
+        const limit = parseInt(req.query.limit) || 10; // Traerá 10 por defecto
+        const page = parseInt(req.query.page) || 1;    // Empezará en la página 1 por defecto
+        
+        // 2. Calcular desde dónde empieza a cortar (el OFFSET)
+        const offset = (page - 1) * limit;
+
         const [rows] = await pool.query(`
             SELECT n.*, u.nombre AS nombre_autor 
             FROM noticias n 
             LEFT JOIN usuarios u ON n.autor_id = u.id 
             ORDER BY n.id DESC
-        `);
+            LIMIT ? OFFSET ?
+        `, [limit, offset]);
+        
         res.json(rows);
     } catch (error) {
         console.error(error);

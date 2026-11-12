@@ -23,7 +23,7 @@ router.get('/usuarios/perfil', authToken, profile);
 router.put('/usuarios/update/:id', validateMid(updatePinSchema), updateUserByPin); 
 
 // Usuarios CRUD (solo para Admin)
-router.get('/usuarios', getUsuarios);
+router.get('/usuarios', authToken, getUsuarios);
 router.post('/usuarios', validateMid(registroSchema), createUsuario);
 router.put('/usuarios/:id', updateUsuario);
 router.patch('/usuarios/:id/activo', updateUsuarioActivo);
@@ -32,7 +32,7 @@ router.delete('/usuarios/:id', deleteUsuario);
 // Noticias
 router.get('/noticias', getAllNoticias);
 router.get('/noticias/:id', getNoticiaById);
-router.post('/noticias/crear', createNoticia);
+router.post('/noticias/crear', authToken, createNoticia);
 router.put('/noticias/update/:id', updateNoticia);
 router.delete('/noticias/delete/:id', deleteNoticia);
 

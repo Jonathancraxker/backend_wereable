@@ -37,7 +37,7 @@ router.put('/noticias/update/:id', updateNoticia);
 router.delete('/noticias/delete/:id', deleteNoticia);
 
 // Soporte / Chat
-router.post('/', createReporteSoporte);
+router.post('/soporte', createReporteSoporte);
 router.get('/mis-reportes/:usuario_id', getMisReportes);
 router.get('/admin/todos', getReportesAdmin);
 router.get('/:reporte_id/mensajes', getMensajesPorReporte);
